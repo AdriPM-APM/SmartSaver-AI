@@ -1,0 +1,58 @@
+// schema.prisma
+
+model Store {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique // e.g., 'nike-store'
+  url         String
+  logo_url    String?
+  categories  String[] // stored as array of strings
+  coupons     Coupon[]
+  created_at  DateTime @default(now())
+}
+
+model Coupon {
+  id                String    @id @default(uuid())
+  store_id          String
+  store             Store     @relation(fields: [store_id], references: [id])
+  
+  code              String
+  title             String
+  description       String?
+  discount_type     String    // ENUM: PERCENTAGE, FIXED, SHIPPING, BOGO
+  discount_value    Decimal?  // e.g., 20.00
+  minimum_spend     Decimal?
+  
+  source_type       String    // ENUM: USER, SCRAPED, API
+  source_metadata   Json?     // Stores original raw text or URL
+  
+  ai_confidence     Float     // 0.0 to 1.0
+  status            String    // ENUM: ACTIVE, SUSPECTED_EXPIRED, EXPIRED, INVALID
+  
+  first_seen_at     DateTime  @default(now())
+  last_checked_at   DateTime  @default(now())
+  expires_at        DateTime?
+  
+  checks            CouponCheck[]
+  feedback          UserFeedback[]
+}
+
+model CouponCheck {
+  id          String   @id @default(uuid())
+  coupon_id   String
+  coupon      Coupon   @relation(fields: [coupon_id], references: [id])
+  check_type  String   // ENUM: AI_PREDICTION, MANUAL_REPORT, AUTO_TEST
+  result      String   // WORKING, FAILED, UNCERTAIN
+  notes       String?  // AI reasoning
+  created_at  DateTime @default(now())
+}
+
+model UserFeedback {
+  id          String   @id @default(uuid())
+  coupon_id   String
+  coupon      Coupon   @relation(fields: [coupon_id], references: [id])
+  user_id     String?  // Nullable for anonymous
+  result      Boolean  // True = Worked, False = Didn't work
+  comment     String?
+  created_at  DateTime @default(now())
+}

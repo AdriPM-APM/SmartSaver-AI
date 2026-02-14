@@ -3,11 +3,11 @@ export async function callOpenRouter(task: 'EXTRACT' | 'SCORE', input: string) {
   const prompts = {
     EXTRACT: {
       system: "Extract coupon data into JSON: {code: string, discount: string, store: string, expiry: string}. Return ONLY JSON.",
-      model: "google/gemini-flash-1.5"
+      model: "openrouter/free"
     },
     SCORE: {
       system: "Analyze coupon validity. Return JSON: {confidence: number (0-1), status: 'ACTIVE'|'EXPIRED', reason: string}.",
-      model: "anthropic/claude-3-haiku"
+      model: "openrouter/free"
     }
   };
 
